@@ -22,4 +22,4 @@ res = pd.DataFrame()
 res['instance_id'] = df_te['Id']
 res['predicted_score'] = df_out['score']
 
-res.to_csv(SUB_PATH, sep=' ', index=False)
+res.to_csv(SUB_PATH, sep=' ', index=False, line_terminator='\r')
