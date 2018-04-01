@@ -6,8 +6,8 @@ from collections import defaultdict
 
 com = ['instance_id', 'is_trade']
 
-TR_PATH = '../data/train_tc.csv'
-TE_PATH = '../data/test_tc.csv'
+TR_PATH = '../data/va_tr_tc.csv'
+TE_PATH = '../data/va_te_tc.csv'
 
 cate_feats = {1: 'hour', 2: 'item_city_id', 3: 'item_price_level', 4: 'item_sales_level',
               5: 'item_collected_level', 6: 'item_pv_level', 7: 'item_category_list', 8: 'user_gender_id',
@@ -19,8 +19,6 @@ num_feats = {1: 'shop_review_positive_rate', 2: 'shop_score_service', 3: 'shop_s
 
 tr_data = pd.read_csv("../data/round1_ijcai_18_train_20180301.txt", sep=' ').sort_values(['context_timestamp'],
                                                                                          kind='heapsort')
-te_data = pd.read_csv("../data/round1_ijcai_18_test_a_20180301.txt", sep=' ')
-te_data['is_trade'] = 0
 
 # 处理需要输出的结果
 
@@ -29,24 +27,26 @@ te_out = pd.DataFrame()
 
 # 标签和Id属性
 tr_out[['Id', 'Label']] = tr_data[com]
-te_out[['Id', 'Label']] = te_data[com]
 
 # 时间属性
 tr_data['date'] = tr_data['context_timestamp'].apply(lambda stamp: pd.datetime.utcfromtimestamp(stamp))
-te_data['date'] = te_data['context_timestamp'].apply(lambda stamp: pd.datetime.utcfromtimestamp(stamp))
 
 tr_data['day_hour'] = tr_data['date'].apply(lambda date: date.strftime('%d-%H'))
-te_data['day_hour'] = te_data['date'].apply(lambda date: date.strftime('%d-%H'))
 
 tr_data['day'] = tr_data['day_hour'].apply(lambda day_hour: day_hour.split('-')[0])
-te_data['day'] = '24'  # 当成最后一天看
+te_data = tr_data[tr_data['day'] == '24']
+te_data['day'] = '23'  # 当成最后一天看
+tr_data = tr_data[tr_data['day'] != '24']
+
 
 tr_data['hour'] = tr_data['day_hour'].apply(lambda day_hour: day_hour.split('-')[1])
 te_data['hour'] = te_data['day_hour'].apply(lambda day_hour: day_hour.split('-')[1])
 
 # 该小时的点击量
 tr_data['click_hour'] = tr_data['day_hour'].replace(tr_data.groupby(['day_hour'])['is_trade'].count())
-te_data['click_hour'] = te_data['day_hour'].replace(te_data.groupby(['day_hour'])['is_trade'].count()) / 0.3
+te_data['click_hour'] = te_data['day_hour'].replace(te_data.groupby(['day_hour'])['is_trade'].count())
+
+# 计算前几天每天平均购买率
 
 
 # 该商店的购买率
