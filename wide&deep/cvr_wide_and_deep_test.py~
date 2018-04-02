@@ -24,41 +24,26 @@ import sys
 import tensorflow as tf
 
 _CSV_COLUMNS = [
-<<<<<<< HEAD
-    'age', 'workclass', 'fnlwgt', 'education', 'education_num',
-    'marital_status', 'occupation', 'relationship', 'race', 'gender',
-    'capital_gain', 'capital_loss', 'hours_per_week', 'native_country',
-    'income_bracket'
-]
-
-_CSV_COLUMN_DEFAULTS = [[0], [''], [0], [''], [0], [''], [''], [''], [''], [''],
-                        [0], [0], [0], [''], ['']]
-=======
     'instance_id', 'item_id', 'item_category_list', 'item_property_list',
-    'item_brand_id', 'item_city_id',    
-    'item_price_level', 'item_sales_level', 'item_collected_level', 
+    'item_brand_id', 'item_city_id',
+    'item_price_level', 'item_sales_level', 'item_collected_level',
     'item_pv_level', 'user_id', 'user_gender_id', 'user_age_level',
-    'user_occupation_id', 'user_star_level', 
-    'context_id', 'context_timestamp', 'context_page_id', 
+    'user_occupation_id', 'user_star_level',
+    'context_id', 'context_timestamp', 'context_page_id',
     'predict_category_property', 'shop_id', 'shop_review_num_level', 'shop_review_positive_rate',
     'shop_star_level', 'shop_score_service', 'shop_score_delivery',
-    'shop_score_description', 'is_trade','time','day'
+    'shop_score_description'
 ]
 
-_CSV_COLUMN_DEFAULTS = [[''], [''], [''], [''], [''], [''], 
-                        [0], [0], [0], [0], [''], [''], [0], [''], 
-                        [0], [''], [''], [0], [''], [''], 
-                        [0], [0.0], [0], [0.0], [0.0], [0.0], [0],[''],[0]]
->>>>>>> 73929a75884b2ce0d9648c62a8404e05ed157350
+_CSV_COLUMN_DEFAULTS = [[''], [''], [''], [''], [''], [''],
+                        [0], [0], [0], [0], [''], [''], [0], [''],
+                        [0], [''], [''], [0], [''], [''],
+                        [0], [0.0], [0], [0.0], [0.0], [0.0]]
 
 parser = argparse.ArgumentParser()
 
 parser.add_argument(
-<<<<<<< HEAD
-    '--model_dir', type=str, default='/tmp/census_model',
-=======
     '--model_dir', type=str, default='./model',
->>>>>>> 73929a75884b2ce0d9648c62a8404e05ed157350
     help='Base directory for the model.')
 
 parser.add_argument(
@@ -73,79 +58,25 @@ parser.add_argument(
     help='The number of training epochs to run between evaluations.')
 
 parser.add_argument(
-    '--batch_size', type=int, default=40, help='Number of examples per batch.')
+    '--batch_size', type=int, default=1, help='Number of examples per batch.')
 
 parser.add_argument(
-<<<<<<< HEAD
-    '--train_data', type=str, default='/tmp/census_data/adult.data',
-    help='Path to the training data.')
-
-parser.add_argument(
-    '--test_data', type=str, default='/tmp/census_data/adult.test',
-    help='Path to the test data.')
-
-_NUM_EXAMPLES = {
-    'train': 32561,
-    'validation': 16281,
-=======
     '--train_data', type=str, default='./../../data/train.txt',
     help='Path to the training data.')
 
 parser.add_argument(
-    '--test_data', type=str, default='./../../data/val.txt',
+    '--test_data', type=str, default='./../../data/round1_ijcai_18_test_a_20180301 (copy).txt',
     help='Path to the test data.')
 
 _NUM_EXAMPLES = {
     'train': 430497,
     'validation': 47641,
->>>>>>> 73929a75884b2ce0d9648c62a8404e05ed157350
 }
 
 
 def build_model_columns():
   """Builds a set of wide and deep feature columns."""
   # Continuous columns
-<<<<<<< HEAD
-  age = tf.feature_column.numeric_column('age')
-  education_num = tf.feature_column.numeric_column('education_num')
-  capital_gain = tf.feature_column.numeric_column('capital_gain')
-  capital_loss = tf.feature_column.numeric_column('capital_loss')
-  hours_per_week = tf.feature_column.numeric_column('hours_per_week')
-
-  education = tf.feature_column.categorical_column_with_vocabulary_list(
-      'education', [
-          'Bachelors', 'HS-grad', '11th', 'Masters', '9th', 'Some-college',
-          'Assoc-acdm', 'Assoc-voc', '7th-8th', 'Doctorate', 'Prof-school',
-          '5th-6th', '10th', '1st-4th', 'Preschool', '12th'])
-
-  marital_status = tf.feature_column.categorical_column_with_vocabulary_list(
-      'marital_status', [
-          'Married-civ-spouse', 'Divorced', 'Married-spouse-absent',
-          'Never-married', 'Separated', 'Married-AF-spouse', 'Widowed'])
-
-  relationship = tf.feature_column.categorical_column_with_vocabulary_list(
-      'relationship', [
-          'Husband', 'Not-in-family', 'Wife', 'Own-child', 'Unmarried',
-          'Other-relative'])
-
-  workclass = tf.feature_column.categorical_column_with_vocabulary_list(
-      'workclass', [
-          'Self-emp-not-inc', 'Private', 'State-gov', 'Federal-gov',
-          'Local-gov', '?', 'Self-emp-inc', 'Without-pay', 'Never-worked'])
-
-  # To show an example of hashing:
-  occupation = tf.feature_column.categorical_column_with_hash_bucket(
-      'occupation', hash_bucket_size=1000)
-
-  # Transformations.
-  age_buckets = tf.feature_column.bucketized_column(
-      age, boundaries=[18, 25, 30, 35, 40, 45, 50, 55, 60, 65])
-
-  # Wide columns and deep columns.
-  base_columns = [
-      education, marital_status, relationship, workclass, occupation,
-      age_buckets,
-=======
   item_price_level = tf.feature_column.numeric_column('item_price_level')
   item_sales_level = tf.feature_column.numeric_column('item_sales_level')
   item_collected_level = tf.feature_column.numeric_column('item_collected_level')
@@ -177,45 +108,24 @@ def build_model_columns():
   # Wide columns and deep columns.
   base_columns = [
       user_gender_id, user_occupation_id,
->>>>>>> 73929a75884b2ce0d9648c62a8404e05ed157350
   ]
 
   crossed_columns = [
       tf.feature_column.crossed_column(
-<<<<<<< HEAD
-          ['education', 'occupation'], hash_bucket_size=1000),
-      tf.feature_column.crossed_column(
-          [age_buckets, 'education', 'occupation'], hash_bucket_size=1000),
-=======
           ['user_gender_id', 'user_occupation_id'], hash_bucket_size=21),
->>>>>>> 73929a75884b2ce0d9648c62a8404e05ed157350
   ]
 
   wide_columns = base_columns + crossed_columns
 
   deep_columns = [
-<<<<<<< HEAD
-      age,
-      education_num,
-      capital_gain,
-      capital_loss,
-      hours_per_week,
-      tf.feature_column.indicator_column(workclass),
-      tf.feature_column.indicator_column(education),
-      tf.feature_column.indicator_column(marital_status),
-      tf.feature_column.indicator_column(relationship),
-      # To show an example of embedding
-      tf.feature_column.embedding_column(occupation, dimension=8),
-=======
       item_price_level, item_sales_level, item_collected_level, item_pv_level,
       user_age_level, user_star_level, context_page_id, shop_review_num_level,
-      shop_review_positive_rate, shop_star_level, shop_score_service, 
+      shop_review_positive_rate, shop_star_level, shop_score_service,
       shop_score_delivery, shop_score_description,
       tf.feature_column.indicator_column(user_gender_id),
       # To show an example of embedding
       tf.feature_column.embedding_column(user_occupation_id, dimension=3),
 #      tf.feature_column.indicator_column(user_occupation_id),
->>>>>>> 73929a75884b2ce0d9648c62a8404e05ed157350
   ]
 
   return wide_columns, deep_columns
@@ -259,17 +169,11 @@ def input_fn(data_file, num_epochs, shuffle, batch_size):
 
   def parse_csv(value):
     print('Parsing', data_file)
-<<<<<<< HEAD
-    columns = tf.decode_csv(value, record_defaults=_CSV_COLUMN_DEFAULTS)
-    features = dict(zip(_CSV_COLUMNS, columns))
-    labels = features.pop('income_bracket')
-    return features, tf.equal(labels, '>50K')
-=======
     columns = tf.decode_csv(value, record_defaults=_CSV_COLUMN_DEFAULTS, field_delim=" ")
     features = dict(zip(_CSV_COLUMNS, columns))
-    labels = features.pop('is_trade')
-    return features, tf.equal(labels, 1)
->>>>>>> 73929a75884b2ce0d9648c62a8404e05ed157350
+    #labels = features.pop('is_trade')
+    #return features, tf.equal(labels, 1)
+    return features
 
   # Extract lines from input files using the Dataset API.
   dataset = tf.data.TextLineDataset(data_file)
@@ -288,23 +192,31 @@ def input_fn(data_file, num_epochs, shuffle, batch_size):
 
 def main(unused_argv):
   # Clean up the model directory if present
-  shutil.rmtree(FLAGS.model_dir, ignore_errors=True)
+  # shutil.rmtree(FLAGS.model_dir, ignore_errors=True)
   model = build_estimator(FLAGS.model_dir, FLAGS.model_type)
 
   # Train and evaluate the model every `FLAGS.epochs_per_eval` epochs.
-  for n in range(FLAGS.train_epochs // FLAGS.epochs_per_eval):
-    model.train(input_fn=lambda: input_fn(
-        FLAGS.train_data, FLAGS.epochs_per_eval, True, FLAGS.batch_size))
+  # for n in range(FLAGS.train_epochs // FLAGS.epochs_per_eval):
+  #   model.train(input_fn=lambda: input_fn(
+  #       FLAGS.train_data, FLAGS.epochs_per_eval, True, FLAGS.batch_size))
+  fw = open('pred_round1_test_input_A.txt', 'a')
+  fw.write('{} {}\n'.format('instance_id', 'predicted_score'))
+  fr = open(FLAGS.test_data, 'r')
+#  fr.readline()
 
-    results = model.evaluate(input_fn=lambda: input_fn(
-        FLAGS.test_data, 1, False, FLAGS.batch_size))
-
+  for result in  model.predict(input_fn=lambda: input_fn(
+          FLAGS.test_data, 1, False, FLAGS.batch_size)):
+#          print(result)
+      str = fr.readline().strip().split(" ")
+      fw.write('{} {}\n'.format(str[0], result['probabilities'][1]))
+          
     # Display evaluation metrics
-    print('Results at epoch', (n + 1) * FLAGS.epochs_per_eval)
-    print('-' * 60)
+    # print('Results at epoch', (n + 1) * FLAGS.epochs_per_eval)
+    # print('-' * 60)
+    #
+    # for key in sorted(results):
+    #   print('%s: %s' % (key, results[key]))
 
-    for key in sorted(results):
-      print('%s: %s' % (key, results[key]))
 
 
 if __name__ == '__main__':

@@ -32,7 +32,7 @@ def gen_feats(row):
         feats.append(key)
     return feats
 
-def read_freqent_feats(threshold=10000):
+def read_freqent_feats(threshold=10):
     frequent_feats = set()
     for row in csv.DictReader(open('fc.trva.t10.csv')):
         if int(row['Total']) < threshold:

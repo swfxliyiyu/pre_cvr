@@ -2,7 +2,7 @@
 
 import subprocess, sys, os, time
 
-NR_THREAD = 4
+NR_THREAD = 1
 
 start = time.time()
 
@@ -27,8 +27,8 @@ subprocess.call(cmd, shell=True)
 cmd = 'converters/parallelizer-b.py -s {nr_thread} converters/pre-b.py te.csv te.gbdt.out te.ffm'.format(nr_thread=NR_THREAD)
 subprocess.call(cmd, shell=True) 
 
-cmd = 'rm -f te.gbdt.out tr.gbdt.out'
-subprocess.call(cmd, shell=True) 
+# cmd = 'rm -f te.gbdt.out tr.gbdt.out'
+# subprocess.call(cmd, shell=True)
 
 cmd = './ffm-train -k 4 -t 18 -s {nr_thread} -p te.ffm tr.ffm model'.format(nr_thread=NR_THREAD) 
 subprocess.call(cmd, shell=True)

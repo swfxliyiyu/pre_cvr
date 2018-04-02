@@ -7,11 +7,10 @@ from common import *
 if len(sys.argv) == 1:
     sys.argv.append('-h')
 
-from common import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-n', '--nr_bins', type=int, default=int(1e+6))
-parser.add_argument('-t', '--threshold', type=int, default=int(10))
+parser.add_argument('-t', '--threshold', type=int, default=int(10000))
 parser.add_argument('csv_path', type=str)
 parser.add_argument('gbdt_path', type=str)
 parser.add_argument('out_path', type=str)
