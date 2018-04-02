@@ -1,0 +1,20 @@
+import os
+import sys
+import time
+import pandas as pd
+
+if __name__=='__main__':
+    input_file = '../../data/round1_ijcai_18_train_20180301.txt'
+    df = pd.read_csv(input_file, sep=' ')
+    df_userId = df[['shop_id']]
+    df_userId.to_csv('../../data/shopId.txt', index=False)
+    # df_test = df.drop(['Label'], axis = 1)
+    # df_test.to_csv('/home/sensetime/Documents/tianchi/data/test_tc.csv', sep=',', index=False)
+    # df['context_timestamp'] = df['context_timestamp'].apply(lambda x: time.strftime('%Y%m%d',time.localtime(x)))
+    # group = df.groupby(['context_timestamp'])['is_trade']
+    # res = group.sum() / group.count()
+    # item_brand_id = df['C14'].drop_duplicates()
+    # # print(df['item_category_list'].drop_duplicates())
+    # # print(df['user_age_level'].drop_duplicates())
+    # # print(res)
+    # print(item_brand_id)

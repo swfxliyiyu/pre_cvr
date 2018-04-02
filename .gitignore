@@ -1,0 +1,9 @@
+/wide&deep/__pycache__/*
+/data/*
+/baseline/.ipynb_checkpoints/*
+/baseline/train.txt
+/baseline/test.txt
+/ffm/*
+/neural_collaborative_filtering/*
+/*.txt
+/neural_factorization_machine/data/*
