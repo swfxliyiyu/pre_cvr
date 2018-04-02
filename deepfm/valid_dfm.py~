@@ -2,6 +2,8 @@ import hashlib
 
 import pandas as pd
 import argparse, sys
+
+from sklearn.metrics import log_loss
 from sklearn.preprocessing import LabelEncoder
 from deepfm.deep_fm import pred_deep_fm
 from sklearn.model_selection import KFold
@@ -47,12 +49,6 @@ for fea in X:
         feature_sizes.append(len(encoder.classes_))
         X[fea] = encoder.transform(X[fea])
         X_te[fea] = encoder.transform(X_te[fea])
-pred = pred_deep_fm(X, y, X_te)
-import numpy as np
+pred = pred_deep_fm(X, y, X_te, te_data['Label'])
 
-np.save(args['OUT_PATH'], pred)
-
-df = pd.DataFrame()
-df['instance_id'] = te_data['Id']
-df['predicted_score'] = pred
-df.to_csv(args['OUT_PATH'] + '.txt', index=False, line_terminator='\r', sep=' ')
+print('log_loss:', log_loss(te_data['Label'], pred))

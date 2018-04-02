@@ -54,15 +54,15 @@ class DataParser(object):
         assert not ((infile is None) and (df is None)), "infile or df at least one is set"
         assert not ((infile is not None) and (df is not None)), "only one can be set"
         if infile is None:
-            dfi = df.copy()
+            dfi = df
         else:
             dfi = pd.read_csv(infile)
         if has_label:
             y = dfi["target"].values.tolist()
             dfi.drop(["id", "target"], axis=1, inplace=True)
-        else:
-            ids = dfi["id"].values.tolist()
-            dfi.drop(["id"], axis=1, inplace=True)
+        # else:
+        #     ids = dfi["id"].values.tolist()
+        #     dfi.drop(["id"], axis=1, inplace=True)
         # dfi for feature index
         # dfv for feature value which can be either binary (1/0) or float (e.g., 10.24)
         dfv = dfi.copy()
@@ -84,5 +84,5 @@ class DataParser(object):
         if has_label:
             return Xi, Xv, y
         else:
-            return Xi, Xv, ids
+            return Xi, Xv
 

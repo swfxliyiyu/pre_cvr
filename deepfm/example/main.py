@@ -9,9 +9,9 @@ from matplotlib import pyplot as plt
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import StratifiedKFold
 
-import config
-from metrics import gini_norm
-from DataReader import FeatureDictionary, DataParser
+import deepfm.example.config as config
+from deepfm.example.metrics import gini_norm
+from deepfm.example.DataReader import FeatureDictionary, DataParser
 sys.path.append("..")
 from DeepFM import DeepFM
 
@@ -51,7 +51,8 @@ def _run_base_model_dfm(dfTrain, dfTest, folds, dfm_params):
     data_parser = DataParser(feat_dict=fd)
     Xi_train, Xv_train, y_train = data_parser.parse(df=dfTrain, has_label=True)
     Xi_test, Xv_test, ids_test = data_parser.parse(df=dfTest)
-
+    print(pd.DataFrame(Xi_train))
+    print(pd.DataFrame(Xv_train))
     dfm_params["feature_size"] = fd.feat_dim
     dfm_params["field_size"] = len(Xi_train[0])
 

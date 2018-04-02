@@ -1,6 +1,6 @@
 import pandas as pd
 from pandas.core.groupby import SeriesGroupBy
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MultiLabelBinarizer
 import numpy as np
 from collections import defaultdict
 
@@ -15,7 +15,7 @@ cate_feats = {1: 'hour', 2: 'item_city_id', 3: 'item_price_level', 4: 'item_sale
               13: 'shop_star_level', 14: 'day', 15: 'item_brand_id', 16: 'shop_id', 17: 'item_id'}
 
 num_feats = {1: 'shop_review_positive_rate', 2: 'shop_score_service', 3: 'shop_score_delivery',
-             4: 'shop_score_description', 5: 'shop_ratio', 6: 'item_ratio', 7: 'brand_ratio'}
+             4: 'shop_score_description'}
 
 tr_data = pd.read_csv("../data/round1_ijcai_18_train_20180301.txt", sep=' ').sort_values(['context_timestamp'],
                                                                                          kind='heapsort')
@@ -45,53 +45,71 @@ tr_data['hour'] = tr_data['day_hour'].apply(lambda day_hour: day_hour.split('-')
 te_data['hour'] = te_data['day_hour'].apply(lambda day_hour: day_hour.split('-')[1])
 
 # 该小时的点击量
-tr_data['click_hour'] = tr_data['day_hour'].replace(tr_data.groupby(['day_hour'])['is_trade'].count())
-te_data['click_hour'] = te_data['day_hour'].replace(te_data.groupby(['day_hour'])['is_trade'].count()) / 0.3
+# tr_data['click_hour'] = tr_data['day_hour'].replace(tr_data.groupby(['day_hour'])['is_trade'].count())
+# te_data['click_hour'] = te_data['day_hour'].replace(te_data.groupby(['day_hour'])['is_trade'].count()) / 0.3
 
 
-# 该商店的购买率
-cnt = tr_data.groupby(['shop_id'])['is_trade'].value_counts()
-cnt_dic = defaultdict(lambda: {'buy': 1, 'total': 56})
-ratio = {}
-for (shop_id, is_trade), num in cnt.items():
-    if is_trade == 1:
-        cnt_dic[shop_id]['buy'] += num
-    cnt_dic[shop_id]['total'] += num
-for shop, cnt in cnt_dic.items():
-    ratio[shop] = cnt['buy'] / cnt['total']
-tr_data['shop_ratio'] = tr_data['shop_id'].replace(ratio)
-te_data['shop_ratio'] = te_data['shop_id'].replace(ratio)
-te_data['shop_ratio'][te_data['shop_ratio'].astype('float') > 1] = 1 / 56
-
-# 该物品的购买率
-cnt = tr_data.groupby(['item_id'])['is_trade'].value_counts()
-cnt_dic = defaultdict(lambda: {'buy': 1, 'total': 56})
-ratio = {}
-for (item, is_trade), num in cnt.items():
-    if is_trade == 1:
-        cnt_dic[item]['buy'] += num
-    cnt_dic[item]['total'] += num
-for item, cnt in cnt_dic.items():
-    ratio[item] = cnt['buy'] / cnt['total']
-tr_data['item_ratio'] = tr_data['item_id'].replace(ratio)
-te_data['item_ratio'] = te_data['item_id'].replace(ratio)
-te_data['item_ratio'][te_data['item_ratio'].astype('float') > 1] = 1 / 56
-
-# 该品牌的购买率
-cnt = tr_data.groupby(['item_brand_id'])['is_trade'].value_counts()
-cnt_dic = defaultdict(lambda: {'buy': 1, 'total': 56})
-ratio = {}
-for (brand, is_trade), num in cnt.items():
-    if is_trade == 1:
-        cnt_dic[brand]['buy'] += num
-    cnt_dic[brand]['total'] += num
-for item, cnt in cnt_dic.items():
-    ratio[item] = cnt['buy'] / cnt['total']
-tr_data['brand_ratio'] = tr_data['item_brand_id'].replace(ratio)
-te_data['brand_ratio'] = te_data['item_brand_id'].replace(ratio)
-te_data['brand_ratio'][te_data['brand_ratio'].astype('float') > 1] = 1 / 56
+mlb = MultiLabelBinarizer()
 
 
+def fuc(ele):
+    res = []
+    lst = ele.split(';')
+    for i in lst:
+        if i in dic:
+            res.append(i)
+    return res
+
+
+# 类别信息
+dic = defaultdict(lambda: 0)
+tr_cates = map(lambda ele: ele.split(';'), tr_data['item_category_list'])
+for props in tr_cates:
+    for prop in props:
+        dic[prop] += 1
+for k in list(dic.keys()):
+    if dic[k] < 1000:
+        dic.pop(k)
+print(len(dic))
+tr_cates = map(fuc, tr_data['item_category_list'])
+tr_cates = mlb.fit_transform(tr_cates)
+te_cates = map(fuc, te_data['item_category_list'])
+te_cates = mlb.transform(te_cates)
+
+# 属性信息
+dic = defaultdict(lambda: 0)
+tr_props = map(lambda ele: ele.split(';'), tr_data['item_property_list'])
+for props in tr_props:
+    for prop in props:
+        dic[prop] += 1
+for k in list(dic.keys()):
+    if dic[k] < 12000:
+        dic.pop(k)
+print(len(dic))
+tr_props = map(fuc, tr_data['item_property_list'])
+tr_props = mlb.fit_transform(tr_props)
+te_props = map(fuc, te_data['item_property_list'])
+te_props = mlb.transform(te_props)
+
+# 预测信息
+dic = defaultdict(lambda: 0)
+tr_pred = map(lambda ele: ele.split(';'), tr_data['predict_category_property'])
+for props in tr_pred:
+    for prop in props:
+        dic[prop] += 1
+for k in list(dic.keys()):
+    if dic[k] < 12000:
+        dic.pop(k)
+print(len(dic))
+tr_pred = map(fuc, tr_data['predict_category_property'])
+tr_pred = mlb.fit_transform(tr_pred)
+te_pred = map(fuc, te_data['predict_category_property'])
+te_pred = mlb.transform(te_pred)
+
+# 合并以上信息
+tr_info = np.concatenate((tr_cates, tr_props, tr_pred), axis=1)
+te_info = np.concatenate((te_cates, te_props, te_pred), axis=1)
+c_names = list(map(lambda i: 'I'+str(i), range(len(num_feats) + 1, len(num_feats) + 1 + tr_info.shape[1])))
 
 
 print('开始转换类别特征...')
@@ -111,7 +129,6 @@ print('开始转换数值特征...')
 c_size = len(cate_feats)
 for i, feat in num_feats.items():
     print('正在转换特征:{}'.format(feat))
-    scaler = StandardScaler()
     tr_data[feat] = tr_data[feat].astype('float')
     te_data[feat] = te_data[feat].astype('float')
     std = np.std(tr_data[feat])
@@ -135,8 +152,9 @@ for i, feat in num_feats.items():
 n_size = len(num_feats)
 tr_out['I{}'.format(1 + n_size)] = tr_data['day']
 te_out['I{}'.format(1 + n_size)] = te_data['day']
+
 for feat in tr_out:
-    if feat in ['C15']:
+    if feat in ['C15', 'C16', 'C17']:  # ID特征
         val_count = tr_out[feat].value_counts()
         val_count[val_count < 3000] = '-9999'
         if val_count.dtype != 'object':
@@ -145,6 +163,18 @@ for feat in tr_out:
         val_count[val_count != '-9999'] = val_count[val_count != '-9999'].index
         tr_out[feat] = tr_out[feat].replace(val_count)
         te_out[feat] = te_out[feat].replace(val_count)
+
+# 链接类别属性特征
+print(te_out.shape)
+print(te_info.shape)
+print(tr_info.shape)
+print(te_info.shape)
+print(len(c_names))
+tr_info = pd.DataFrame(tr_info, index=tr_out.index, columns=c_names)
+te_info = pd.DataFrame(te_info, index=te_out.index, columns=c_names)
+
+tr_out = pd.concat((tr_out, tr_info), axis=1)
+te_out = pd.concat((te_out, te_info), axis=1)
 
 tr_out.astype('object').to_csv(TR_PATH, index=False)
 te_out.astype('object').to_csv(TE_PATH, index=False)
